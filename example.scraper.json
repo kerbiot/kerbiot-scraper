@@ -1,0 +1,17 @@
+{
+    "Token": "0123456789abcdefg",
+    "Delay": 60,
+    "MQTT": {
+        "Broker": "host.docker.internal",
+        "Port": 1883,
+        "Username": "user",
+        "Password": "password"
+    },
+    "Locations": [
+        {
+            "Name": "New York",
+            "Lat": 40.697,
+            "Long": -74.119
+        }
+    ]
+}
