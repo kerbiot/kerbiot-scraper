@@ -1,9 +1,11 @@
-  version: '3.8'
+version: '3.8'
 
-  services:
-    scraper:
-      container_name: scraper
-      build: .
-      volumes:
-        - ./scraper.json:/app/scraper.json:ro
-      restart: always
+services:
+  scraper:
+    container_name: scraper
+    build: .
+    volumes:
+      - ./scraper.json:/app/scraper.json:ro
+    restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
