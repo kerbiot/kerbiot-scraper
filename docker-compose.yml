@@ -6,3 +6,4 @@
       build: .
       volumes:
         - ./scraper.json:/app/scraper.json:ro
+      restart: always
