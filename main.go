@@ -67,7 +67,7 @@ func main() {
 			}
 		}
 
-		time.Sleep(time.Second * 1000000000)
+		time.Sleep(time.Duration(config.Delay) * time.Second)
 	}
 }
 
