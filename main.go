@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"kerbiot-scraper/weather"
 	"log"
 	"net/http"
 	"os"
@@ -54,16 +55,26 @@ func main() {
 
 	for {
 		for _, location := range config.Locations {
-			weather, err := fetchWeather(config.Token, &location)
+			w, err := fetchWeather(config.Token, &location)
 			if err == nil {
-				publish(client, toTopic(location.Name, "Rain"), weather.Precip1Hour)
-				publish(client, toTopic(location.Name, "Pressure"), weather.PressureAltimeter)
-				publish(client, toTopic(location.Name, "Humiditiy"), weather.RelativeHumidity)
-				publish(client, toTopic(location.Name, "Snow"), weather.Snow1Hour)
-				publish(client, toTopic(location.Name, "Temperature"), weather.Temperature)
-				publish(client, toTopic(location.Name, "Wind speed"), weather.WindSpeed)
+				publish(client, toTopic(location.Name, "Rain"), w.Precip1Hour)
+				publish(client, toTopic(location.Name, "Pressure"), w.PressureAltimeter)
+				publish(client, toTopic(location.Name, "Humiditiy"), w.RelativeHumidity)
+				publish(client, toTopic(location.Name, "Snow"), w.Snow1Hour)
+				publish(client, toTopic(location.Name, "Temperature"), w.Temperature)
+				publish(client, toTopic(location.Name, "Wind speed"), w.WindSpeed)
 			} else {
 				log.Printf("Error fetching weather data: %s", err)
+			}
+
+			airQuality, err := weather.FetchAirQuality(config.Token, location.Lat, location.Long)
+			if err == nil {
+				publish(client, toTopic(location.Name, "Air quality"), float64(airQuality.AirQualityIndex))
+				for _, pollutant := range airQuality.Pollutants {
+					publish(client, toTopic(location.Name, pollutant.Name), pollutant.Amount)
+				}
+			} else {
+				log.Printf("Error fetching air quality data: %s", err)
 			}
 		}
 
@@ -100,6 +111,7 @@ func connectMQTT(config *Config) (mqtt.Client, error) {
 }
 
 func publish(client mqtt.Client, topic string, value float64) {
+	log.Printf("%s: %f", topic, value)
 	result := client.Publish(topic, 0, false, fmt.Sprintf("%f", value))
 	result.Wait()
 
