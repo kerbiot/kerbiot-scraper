@@ -3,24 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"kerbiot-scraper/weather"
 	"log"
-	"net/http"
 	"os"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
-
-type Weather struct {
-	Precip1Hour       float64 `json:"precip1Hour"`
-	PressureAltimeter float64 `json:"pressureAltimeter"`
-	RelativeHumidity  float64 `json:"relativeHumidity"`
-	Snow1Hour         float64 `json:"snow1Hour"`
-	Temperature       float64 `json:"temperature"`
-	WindSpeed         float64 `json:"windSpeed"`
-}
 
 type Location struct {
 	Name string  `json:"Name"`
@@ -55,7 +44,7 @@ func main() {
 
 	for {
 		for _, location := range config.Locations {
-			w, err := fetchWeather(config.Token, &location)
+			w, err := weather.FetchWeather(config.Token, location.Lat, location.Long)
 			if err == nil {
 				publish(client, toTopic(location.Name, "Rain"), w.Precip1Hour)
 				publish(client, toTopic(location.Name, "Pressure"), w.PressureAltimeter)
@@ -118,28 +107,6 @@ func publish(client mqtt.Client, topic string, value float64) {
 	if result.Error() != nil {
 		log.Fatalf("WARNING: Failed to publish value to topic '%s': %s", topic, result.Error())
 	}
-}
-
-func fetchWeather(Token string, location *Location) (*Weather, error) {
-	url := fmt.Sprintf("https://api.weather.com/v3/wx/observations/current?apiKey=%s&geocode=%.3f%%2C%.3f&language=en-US&units=m&format=json", Token, location.Lat, location.Long)
-	response, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-
-	defer response.Body.Close()
-	content, err := io.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var weather Weather
-	err = json.Unmarshal(content, &weather)
-	if err != nil {
-		return nil, err
-	}
-
-	return &weather, nil
 }
 
 func toTopic(location string, key string) string {
