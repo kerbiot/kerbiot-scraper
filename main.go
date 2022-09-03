@@ -60,7 +60,7 @@ func main() {
 			if err == nil {
 				publish(client, toTopic(location.Name, "Air quality"), float64(airQuality.AirQualityIndex))
 				for _, pollutant := range airQuality.Pollutants {
-					publish(client, toTopic(location.Name, pollutant.Name), pollutant.Amount)
+					publish(client, toTopic(location.Name, "Pollutant: "+pollutant.Name), pollutant.Amount)
 				}
 			} else {
 				log.Printf("Error fetching air quality data: %s", err)
