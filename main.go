@@ -46,21 +46,22 @@ func main() {
 		for _, location := range config.Locations {
 			w, err := weather.FetchWeather(config.Token, location.Lat, location.Long)
 			if err == nil {
-				publish(client, toTopic(location.Name, "Rain"), w.Precip1Hour)
-				publish(client, toTopic(location.Name, "Pressure"), w.PressureAltimeter)
-				publish(client, toTopic(location.Name, "Humidity"), w.RelativeHumidity)
-				publish(client, toTopic(location.Name, "Snow"), w.Snow1Hour)
-				publish(client, toTopic(location.Name, "Temperature"), w.Temperature)
-				publish(client, toTopic(location.Name, "Wind speed"), w.WindSpeed)
+				publish(client, toTopic(location.Name, "Rain in mm"), w.Precip1Hour)
+				publish(client, toTopic(location.Name, "Pressure in hPa"), w.PressureAltimeter)
+				publish(client, toTopic(location.Name, "Humidity in %"), w.RelativeHumidity)
+				publish(client, toTopic(location.Name, "Snow in cm"), w.Snow1Hour) // not really sure if this is really cm 🤡
+				publish(client, toTopic(location.Name, "Temperature in °C"), w.Temperature)
+				publish(client, toTopic(location.Name, "Wind speed in kmh"), w.WindSpeed)
 			} else {
 				log.Printf("Error fetching weather data: %s", err)
 			}
 
 			airQuality, err := weather.FetchAirQuality(config.Token, location.Lat, location.Long)
 			if err == nil {
-				publish(client, toTopic(location.Name, "Air quality"), float64(airQuality.AirQualityIndex))
+				publish(client, toTopic(location.Name, "Air quality index"), float64(airQuality.AirQualityIndex))
 				for _, pollutant := range airQuality.Pollutants {
-					publish(client, toTopic(location.Name, "Pollutant: "+pollutant.Name), pollutant.Amount)
+					publish(client, toTopic(location.Name, "Pollutant: "+pollutant.Name+" in μgm3"), pollutant.Amount)
+					publish(client, toTopic(location.Name, "Pollutant: "+pollutant.Name+" index"), float64(pollutant.CategoryIndex))
 				}
 			} else {
 				log.Printf("Error fetching air quality data: %s", err)
