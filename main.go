@@ -100,7 +100,6 @@ func connectMQTT(config *Config) (mqtt.Client, error) {
 }
 
 func publish(client mqtt.Client, topic string, value float64) {
-	log.Printf("%s: %f", topic, value)
 	result := client.Publish(topic, 0, false, fmt.Sprintf("%f", value))
 	result.Wait()
 
