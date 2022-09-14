@@ -48,7 +48,7 @@ func main() {
 			if err == nil {
 				publish(client, toTopic(location.Name, "Rain"), w.Precip1Hour)
 				publish(client, toTopic(location.Name, "Pressure"), w.PressureAltimeter)
-				publish(client, toTopic(location.Name, "Humiditiy"), w.RelativeHumidity)
+				publish(client, toTopic(location.Name, "Humidity"), w.RelativeHumidity)
 				publish(client, toTopic(location.Name, "Snow"), w.Snow1Hour)
 				publish(client, toTopic(location.Name, "Temperature"), w.Temperature)
 				publish(client, toTopic(location.Name, "Wind speed"), w.WindSpeed)
